@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import Browser
+import Browser exposing (Document)
 import File exposing (File)
 import File.Download as Download
 import File.Select as Select
@@ -15,7 +15,7 @@ import Http exposing (Error(..))
 
 main : Program () Model Msg
 main =
-    Browser.element
+    Browser.document
         { init = init
         , view = view
         , update = update
@@ -97,11 +97,13 @@ update msg model =
 -- VIEW
 
 
-view : Model -> Html Msg
+view : Model -> Document Msg
 view model =
-    div []
-        [ button [ onClick CsvRequested ] [ text "Load txt" ]
-        , h1 [] [ text model.text ]
+    Document "main"
+        [ div []
+            [ button [ onClick CsvRequested ] [ text "Load txt" ]
+            , h1 [] [ text model.text ]
+            ]
         ]
 
 
