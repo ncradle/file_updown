@@ -2,6 +2,7 @@ module Main exposing (..)
 
 import Browser
 import File exposing (File)
+import File.Download as Download
 import File.Select as Select
 import Html exposing (Html, button, div, h1, text)
 import Html.Events exposing (onClick)
@@ -28,12 +29,13 @@ main =
 
 type alias Model =
     { text : String
+    , file : Downloader
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Model "", Cmd.none )
+    ( Model "" NotYet, Cmd.none )
 
 
 
@@ -46,11 +48,16 @@ type Msg
     | Uploaded (Result Http.Error String)
 
 
+type Downloader
+    = NotYet
+    | Ready
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         CsvRequested ->
-            ( model
+            ( Model "" NotYet
             , Select.file [] CsvSelected
             )
 
@@ -66,7 +73,7 @@ update msg model =
         Uploaded result ->
             case result of
                 Ok text ->
-                    ( { model | text = text }, Cmd.none )
+                    ( Model text Ready, Download.string "result.txt" "text/plain" text )
 
                 Err err ->
                     case err of
@@ -93,7 +100,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ button [ onClick CsvRequested ] [ text "Load CSV" ]
+        [ button [ onClick CsvRequested ] [ text "Load txt" ]
         , h1 [] [ text model.text ]
         ]
 

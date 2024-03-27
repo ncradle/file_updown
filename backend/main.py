@@ -1,25 +1,28 @@
 from pathlib import Path
 
-from flask import Flask, request, send_file
+from flask import Flask, Response, render_template, request
 from flask_cors import CORS
+from werkzeug.datastructures.file_storage import FileStorage
 
 app = Flask(__name__)
 CORS(app)
 
-CWD = Path(__file__).parent
-RETUEN_FILE = "modified_file.txt"
-RETUEN_FILE = CWD / RETUEN_FILE
+CWD: Path = Path(__file__).parent
+
+
+@app.route("/")
+def index() -> str:
+    return render_template("index.html")
 
 
 @app.route("/upload", methods=["POST"])
-def upload_file():
-    uploaded_file = request.files["uploaded"]
+def upload_file() -> Response | None:
+    uploaded_file: FileStorage = request.files["uploaded"]
+
     if uploaded_file.filename != "":
-        content = uploaded_file.read().decode("utf-8")
+        content: str = uploaded_file.stream.read().decode("utf-8")
         content += "\nhello world"
-        with open(RETUEN_FILE, "w") as f:
-            f.write(content)
-        return send_file(RETUEN_FILE, as_attachment=True)
+        return content
 
 
 if __name__ == "__main__":
